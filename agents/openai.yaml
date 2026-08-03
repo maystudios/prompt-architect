@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prompt Architect"
+  short_description: "Compile a task brief into a standalone execution prompt"
+  default_prompt: "Use $prompt-architect to turn this brief into a standalone execution prompt for another agent. Ask me which environment will run it, where the finished work should land, and whether a knowledge base exists — then emit the assumptions you made followed by the prompt itself. Generate it only; do not execute it."
