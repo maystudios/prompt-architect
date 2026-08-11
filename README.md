@@ -1,117 +1,134 @@
 # prompt-architect
 
-A skill for **Claude Code** and **Codex** that turns a task brief into one standalone, copy-ready execution prompt for another agent.
+Two independently invocable skills that compile rough intent into one standalone, copy-ready prompt for another agent. They generate prompts; they never execute them.
 
-It generates the prompt. It never executes it.
+## Included skills
 
-```
-"bau mir ein Prompt, um die UI/UX meiner App zu verbessern"
-        ↓
-  three questions
-        ↓
-  a 14,000-character brief a fresh agent can execute
-  with no access to the conversation that produced it
-```
+| Skill | Package path | Use |
+|---|---|---|
+| `prompt-architect` | repository root | General software, research, design, and execution prompts |
+| `game-development-prompt-architect` | `skills/game-development-prompt-architect` | Game, engine, gameplay, plugin, tool, UI, asset-pipeline, and studio-orchestrator Goal prompts |
 
-## Why
+The generic skill remains at the repository root for backward-compatible installs. The game-development skill is self-contained and has no runtime dependency on the generic skill.
 
-Agents fail less often because they lack intelligence than because they were handed a badly framed task. A prompt that says "improve the UI" produces a well-built wrong thing. A prompt that says *what needs attention right now is visible above the fold on the smallest supported device, proven by the captured screenshot set* produces the thing you wanted.
+## Game-development edition
 
-This skill does that translation, in one consistent structure, every time.
+The game skill turns a small feature request or a full game concept into exactly one autonomous English Goal prompt. Its scale adapts to the work:
 
-## What it produces
+- a clear subtask compiles immediately;
+- an ambiguous feature gets one focused question round;
+- a full game gets a logically sequenced Director Interview whose answers are compressed after every round into a contradiction-free Decision Ledger;
+- a main Goal can orchestrate independent sessions and recursively use the skill to compile fresh child Goal Packets.
 
-Nine required sections in a fixed order, plus conditional ones that have to earn their place:
+There is no arbitrary maximum question count. Interviewing stops when another answer would no longer materially change player experience, scope, architecture, production routing, evidence, or risk.
 
-```
-# SETUP                        # TESTING & VERIFICATION
-# MISSION                      # SECOND BRAIN / RESEARCH    (conditional)
-# SOURCE OF TRUTH  (cond.)     # MODEL ROUTING & PARALLELISM
-# SCOPE                        # SELF-IMPROVEMENT — BOUNDED (0-2 PASSES)
-# FIRST ACTION                 # DEFINITION OF DONE
-# WORKING METHOD
-```
+The compiled Goal can include:
 
-Principles the output enforces, whatever the task:
+- current official workflows for Unreal Engine, Unity, Godot, or a custom engine;
+- C++-first/Blueprint-friendly Unreal defaults with explicit Blueprint-only and C++-only overrides;
+- adaptive Studio Cells, isolated branches/worktrees, session messaging, integration queues, and clean tooling boundaries;
+- capability-first model routing with cost-aware escalation and fresh-session context control;
+- creative ideation and production pipelines for image, video, audio, voice, music, shaders, and 3D assets;
+- free-first visual planning with repository-native Mermaid/D2, draw.io, optional HacknPlan Personal, and Pencil;
+- a strict Pencil MCP, Atomic Design, token, script, and real-GLSL workflow for game UI;
+- autonomous knowledge curation across a global game-development brain and a project-specific graph brain;
+- engine tests, packaged builds, playtests, visual/audio comparison, performance evidence, and target-platform gates.
 
-- **Every requirement carries its evidence.** "Code is clean" is not a completion criterion; "no cross-layer imports, the boundary test passes" is.
-- **Never report a result you have not observed.** Screenshot, log line, measured number — or it did not happen.
-- **Interrogate the task before solving it.** What does "sensible" mean *here*? Why is the existing thing shaped that way? The answer is often three steps from the stated task and is the whole solution.
-- **One routing rail, matched to the host.** Claude Code or Codex — never both, never one the user did not pick.
-- **Bounded self-improvement, 0–2 passes.** Zero is a valid outcome. Unbounded loops degrade.
-- **Land on exactly one branch.** Branch and roll back freely while working; leave one clean integration point.
-- **No placeholders.** No `<slot>`, no `TODO`, no `path/to/file`. A prompt with a hole is not copy-ready.
-- **Always English**, and the prompt tells its executor to work in English — fewer tokens per unit of meaning, and every downstream turn pays that tax.
+Human approval remains mandatory for engine migrations, new costs/subscriptions, unclear rights or provenance, and irreversible external actions.
 
 ## Install
 
-**Claude Code**
+### Install the repository bundle
 
-```bash
-git clone https://github.com/maystudios/prompt-architect.git ~/.claude/skills/prompt-architect
+Clone the repository into a source directory, then copy or link the desired package directories into the host's skill directory.
+
+Codex locations:
+
+```text
+%USERPROFILE%\.codex\skills\prompt-architect
+%USERPROFILE%\.codex\skills\game-development-prompt-architect
 ```
 
-**Codex**
+Claude Code locations:
 
-```bash
-git clone https://github.com/maystudios/prompt-architect.git ~/.codex/skills/prompt-architect
+```text
+%USERPROFILE%\.claude\skills\prompt-architect
+%USERPROFILE%\.claude\skills\game-development-prompt-architect
 ```
 
-On Windows, clone to `%USERPROFILE%\.claude\skills\prompt-architect` or `%USERPROFILE%\.codex\skills\prompt-architect`.
+For `prompt-architect`, install the repository root. For `game-development-prompt-architect`, install only `skills/game-development-prompt-architect`. The game package contains its own `SKILL.md`, metadata, references, and linter.
+
+### Git sparse install of only the game skill
+
+```powershell
+git clone --filter=blob:none --no-checkout https://github.com/maystudios/prompt-architect.git prompt-architect-source
+Set-Location prompt-architect-source
+git sparse-checkout init --cone
+git sparse-checkout set skills/game-development-prompt-architect
+git checkout main
+Copy-Item -Recurse skills/game-development-prompt-architect "$env:USERPROFILE\.codex\skills\game-development-prompt-architect"
+```
+
+Use the analogous `.claude\skills` destination for Claude Code. A normal clone still contains both packages and is the simplest development setup.
 
 ## Use
 
-Invoke it as `/prompt-architect`, or just ask — the description triggers on phrases like *"write me a prompt to…"*, *"bau mir ein Prompt für…"*, *"turn this into a brief"*.
+Invoke the general compiler as `$prompt-architect` or `/prompt-architect`.
 
-It asks at most three or four questions in a single round:
+Invoke the game compiler as `$game-development-prompt-architect` or `/game-development-prompt-architect`, for example:
 
-1. **Which environment runs this prompt** — Claude Code or Codex. Decides the routing rail.
-2. **Where the finished work lands** — offered with your repository's real branch names.
-3. **Whether a knowledge base exists** for the project.
-4. Only if something genuinely outranks it: a mission ambiguity, or the length.
-
-Then it emits the assumptions it made, in your language, followed by the prompt in one code block, in English.
-
-Say *"use defaults"* and the second round is skipped — the first is not, because those choices cannot be inferred safely.
-
-## Length
-
-| Mode | Body | Use |
-|---|---|---|
-| `standard` | 10,000–15,000 chars | the default |
-| `compact` | ≤ 3,950 chars | fields with a hard 4,000-character limit |
-| custom | any figure | interpolated between the two budgets |
-
-The compact ceiling is 3,950 rather than 4,000 because the prompt ships inside a code fence, and someone copying the fences too must still clear the limit.
-
-Character counts are **measured, not estimated** — a model cannot count characters, so a script does:
-
-```bash
-python scripts/lint_prompt.py your-prompt.md --budget compact
+```text
+Use $game-development-prompt-architect to turn this cooperative survival-game concept into an autonomous Codex orchestrator Goal.
 ```
 
-It errors on a missing or misordered section, a leftover placeholder, both rails named at once, a missing Fable or paid-latency prohibition, a missing English instruction, a missing git end-state clause, and a missing evidence rule. Thirteen fixtures verify it bites on each and stays quiet on legitimate content.
+The emitted artifact is English, contains no fill-in placeholders, and is self-contained for a fresh executor. Conversation and interview questions remain in the user's language.
 
-## Layout
+## Knowledge system
 
+Game Goals reference two exact repositories:
+
+- global game-development brain: <https://github.com/maystudios/VaultGameDevelopment>
+- project-brain foundation: <https://github.com/maystudios/better-second-brain>
+
+Workers query both but return knowledge packets. One curator writes, corrects stale claims in place, records empirical engine discoveries with reproduction conditions, and maintains meaningful graph links.
+
+## Validation
+
+General prompt:
+
+```powershell
+python scripts/lint_prompt.py prompt.md --budget standard
 ```
-SKILL.md                 router, pipeline, question protocol, output contract
-rules/00…09              contract · intake · decomposition · sections · routing
-                         second brain · verification · self-improvement · git+DoD · style
-rules/rails/             claude-code.md · codex.md — exactly one is ever emitted
-rules/domains/           ui-ux · web-frontend · mobile-flutter · backend-api
-                         data-db · game-unreal · research-knowledge · creative-media
-references/              template · worked examples · lint checklist
-scripts/lint_prompt.py   deterministic character count and structure check
+
+Game Goal:
+
+```powershell
+python skills/game-development-prompt-architect/scripts/lint_goal_prompt.py GOAL.md --engine unreal --main-goal
+python skills/game-development-prompt-architect/scripts/test_lint_goal_prompt.py
 ```
 
-The split is deliberate: **a new model or a changed price touches exactly one rail file.** Model names never appear in the rail-independent core.
+The game linter checks required section order, engine-profile selection, unresolved placeholders, both exact brain repositories, the single-writer curator, observed-evidence language, version-control isolation, and all four human gate classes.
 
-## Adapting it to your setup
+## Repository layout
 
-The rail files describe one specific arrangement — a Claude-side and a Codex-side roster with a bridge between them. Yours will differ. Edit `rules/rails/claude-code.md` and `rules/rails/codex.md`; nothing else needs to change.
+```text
+SKILL.md                                      generic prompt-architect package
+rules/                                        generic rules and host rails
+references/                                   generic templates and examples
+scripts/lint_prompt.py                        generic deterministic linter
+skills/game-development-prompt-architect/
+  SKILL.md                                    game compiler and interview workflow
+  agents/openai.yaml                          Codex UI metadata
+  references/                                 engine, studio, knowledge, creative rules
+  scripts/lint_goal_prompt.py                 deterministic Goal linter
+content/Video Ia dev.txt                      provided research source, not shipped at runtime
+```
 
-The rails carry **no price figures on purpose**. Pricing moves, and a stale number is worse than none because it produces a confident wrong choice. What they carry instead is the durable shape — the volume worker sits about an order of magnitude below the orchestrator — and an instruction to verify current rates before any decision turns on cost.
+## Design provenance
+
+The game workflow incorporates the durable lessons from the supplied video description in `content/Video Ia dev.txt`: plan before production, isolate one coherent job per fresh session, end every job with a test, roll back only the failed unit, establish a visual/color bible, progress from placeholders to verified assets, keep procedural source scripts authoritative, and optimize game systems from measurements.
+
+Time-sensitive engine and tool claims are separately verified against official documentation and recorded in the relevant engine references.
 
 ## License
 

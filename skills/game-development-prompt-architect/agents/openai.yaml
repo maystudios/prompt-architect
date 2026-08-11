@@ -1,0 +1,4 @@
+interface:
+  display_name: "Game Development Prompt Architect"
+  short_description: "Compile game briefs into autonomous Goal prompts"
+  default_prompt: "Use $game-development-prompt-architect to turn this game-development brief into one standalone Goal prompt."
