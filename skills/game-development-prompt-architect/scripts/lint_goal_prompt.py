@@ -4,6 +4,7 @@
 Usage:
     python lint_goal_prompt.py GOAL.md --engine unreal --main-goal
     python lint_goal_prompt.py GOAL.md --engine unity
+    python lint_goal_prompt.py GOAL.md --engine unreal --requires-tool-bootstrap
 
 Stdlib only. Exit 0 means no errors; warnings may remain.
 """
@@ -83,6 +84,11 @@ def main() -> int:
     parser.add_argument("--engine", choices=["auto", *ENGINE_TITLES], default="auto")
     parser.add_argument("--main-goal", action="store_true")
     parser.add_argument("--cross-engine", action="store_true")
+    parser.add_argument(
+        "--requires-tool-bootstrap",
+        action="store_true",
+        help="require safe inventory/install/configure/health-check instructions for creative tools",
+    )
     parser.add_argument("--max-chars", type=int, default=0,
                         help="optional positive character ceiling; 0 means no arbitrary ceiling")
     args = parser.parse_args()
@@ -131,6 +137,49 @@ def main() -> int:
         for heading in ("STUDIO ORCHESTRATION & GOAL PACKETS", "PLANNING & VISUAL CONTROL PLANE"):
             if not any(title.upper().startswith(heading) for title in titles):
                 errors.append(f"main Goal missing: # {heading}")
+
+    bootstrap = next(
+        (body for title, body in sections if title.upper().startswith("TOOLCHAIN BOOTSTRAP & HEALTH CHECK")),
+        "",
+    )
+    if args.requires_tool_bootstrap:
+        if not bootstrap:
+            errors.append("tool-dependent Goal missing: # TOOLCHAIN BOOTSTRAP & HEALTH CHECK")
+        else:
+            bootstrap_low = bootstrap.lower()
+            for alternatives, label in (
+                (("inventory", "detect", "inspect"), "inventory before installation"),
+                (("official", "publisher"), "official-source verification"),
+                (("health", "diagnostic", "doctor"), "health check"),
+                (("rollback", "uninstall", "remove"), "rollback"),
+                (("secret", "credential", "api key", "token"), "secret handling"),
+            ):
+                if not any(term in bootstrap_low for term in alternatives):
+                    errors.append(f"tool bootstrap omits: {label}")
+
+            if "tripo" in bootstrap_low:
+                tripo_requirements = (
+                    ("npm install -g tripo-cli", "official Tripo CLI install command"),
+                    ("tripo doctor", "Tripo health check"),
+                    ("tripo mcp", "Tripo built-in MCP entry point"),
+                )
+                for term, label in tripo_requirements:
+                    if term not in bootstrap_low:
+                        errors.append(f"Tripo bootstrap omits: {label}")
+                if "node" not in bootstrap_low or not re.search(r"\b20(?:\+|\s+or\s+(?:newer|later)|\s+and\s+newer)?\b", bootstrap_low):
+                    errors.append("Tripo bootstrap must verify Node.js 20 or newer")
+                if not any(term in bootstrap_low for term in ("credit", "paid", "approved budget", "cost")):
+                    errors.append("Tripo bootstrap omits the paid-credit gate")
+                if not re.search(
+                    r"(?:never|do not|must not).{0,100}(?:api key|secret|credential|token)|"
+                    r"(?:api key|secret|credential|token).{0,100}(?:never|do not|must not)",
+                    bootstrap,
+                    re.I | re.S,
+                ):
+                    errors.append("Tripo bootstrap must explicitly prohibit exposing credentials")
+
+    if re.search(r"TRIPO_API_KEY\s*=\s*['\"]?[A-Za-z0-9_-]{16,}", text):
+        errors.append("possible literal TRIPO_API_KEY secret in Goal")
 
     for pattern, label in PLACEHOLDERS:
         for match in re.finditer(pattern, text, re.IGNORECASE):

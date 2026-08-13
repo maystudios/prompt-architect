@@ -39,6 +39,8 @@ Reject content with uncertain rights, hidden watermarks, malformed topology, inc
 
 Programmatic Blender, shader, audio, or conversion scripts remain authoritative when they generate assets. Modify and rerun the source rather than hand-editing only the output.
 
+For Tripo, Blender, creative MCP, addon, CLI, or converter setup, compile the inventory-first and health-check workflow from `creative-tool-bootstrap.md`. Prefer Tripo CLI's built-in MCP for ordinary agentic generation; use the separate live Blender MCP route only when its extra integration is required and current compatibility is verified. Preserve provider task metadata and authoritative Blender source scripts through engine import and validation.
+
 ## Tool choice
 
-Discover available generation tools at runtime. Image generation is useful for level/material/UI ideation; video for motion, camera, VFX, and trailers; audio/voice for timing, character, ambience, and feedback; 3D for blockout and candidate meshes. Tool availability never removes the quality and rights gates.
+Discover available generation tools at runtime. Image generation is useful for level/material/UI ideation; video for motion, camera, VFX, and trailers; audio/voice for timing, character, ambience, and feedback; 3D for blockout and candidate meshes. Tool availability never removes the quality, rights, security, cost, or engine-validation gates.

@@ -29,6 +29,7 @@ The compiled Goal can include:
 - adaptive Studio Cells, isolated branches/worktrees, session messaging, integration queues, and clean tooling boundaries;
 - capability-first model routing with cost-aware escalation and fresh-session context control;
 - creative ideation and production pipelines for image, video, audio, voice, music, shaders, and 3D assets;
+- inventory-first installation and configuration of required creative tools, including Tripo CLI/MCP and optional Blender integration, with version, secret, cost, health-check, and rollback controls;
 - free-first visual planning with repository-native Mermaid/D2, draw.io, optional HacknPlan Personal, and Pencil;
 - a strict Pencil MCP, Atomic Design, token, script, and real-GLSL workflow for game UI;
 - autonomous knowledge curation across a global game-development brain and a project-specific graph brain;
@@ -104,10 +105,11 @@ Game Goal:
 
 ```powershell
 python skills/game-development-prompt-architect/scripts/lint_goal_prompt.py GOAL.md --engine unreal --main-goal
+python skills/game-development-prompt-architect/scripts/lint_goal_prompt.py TRIPO-GOAL.md --engine unreal --requires-tool-bootstrap
 python skills/game-development-prompt-architect/scripts/test_lint_goal_prompt.py
 ```
 
-The game linter checks required section order, engine-profile selection, unresolved placeholders, both exact brain repositories, the single-writer curator, observed-evidence language, version-control isolation, and all four human gate classes.
+The game linter checks required section order, engine-profile selection, unresolved placeholders, both exact brain repositories, the single-writer curator, observed-evidence language, version-control isolation, all four human gate classes, and optional Tripo/creative-tool bootstrap safety.
 
 ## Repository layout
 

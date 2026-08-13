@@ -9,6 +9,7 @@ Use these top-level sections in this order. Conditional sections must earn their
 # SCOPE
 # FIRST ACTION
 # WORKING METHOD
+# TOOLCHAIN BOOTSTRAP & HEALTH CHECK              (missing CLI/MCP/DCC/tool dependencies)
 # ENGINE RULES — [resolved engine]                 (required for engine work)
 # PLAYER EXPERIENCE & CREATIVE DIRECTION          (creative/main goals)
 # STUDIO ORCHESTRATION & GOAL PACKETS             (main or multi-stream goals)
@@ -35,6 +36,8 @@ Use these top-level sections in this order. Conditional sections must earn their
 **FIRST ACTION** — Inspect the live project and persist a concise `GAME_PLAN.md` or equivalent canonical plan before changing implementation. For a child task, update its Goal Packet status rather than rebuilding the whole plan.
 
 **WORKING METHOD** — Plan before implementation; one coherent job per isolated work unit; interface contracts before parallel work; placeholder-to-production progression; tests at every boundary; evidence-driven iteration; rollback only the failed unit.
+
+**TOOLCHAIN BOOTSTRAP & HEALTH CHECK** — Inventory before installation; smallest justified tool route and fallback; official source and current compatibility verification; pinned version and install scope; secure user-attended authentication; MCP registration for the detected host; diagnostics and no-cost smoke test; project tool manifest; idempotency and rollback. Include only when the Goal depends on a missing or configurable creative tool.
 
 **ENGINE RULES** — Compile only the selected engine profile and the user's explicit code/visual-scripting mode overrides.
 
@@ -64,4 +67,5 @@ Use these top-level sections in this order. Conditional sections must earn their
 - State why a constraint exists when that prevents a plausible wrong implementation.
 - Pair subjective qualities with references, measurable traits, comparison captures, or playtest questions.
 - Do not prescribe a tool merely because it was mentioned. Prescribe its role and fallback.
+- When setup is required, distinguish free reversible installation from paid use, authenticate without exposing secrets, and require a health check rather than treating package installation as success.
 - A fresh executor must not need this conversation.
